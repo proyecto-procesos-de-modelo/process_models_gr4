@@ -21,7 +21,11 @@ urlpatterns = [
     path('restablecer_contrasena', app_views.custom_reset_password, name='custom_reset_password'),
 
     # Map Urls
+    path('mapa',
+        app_views.map.as_view(),
+        name='map_stadistics'),
 
+   
     # Move Tasks Urls
 
 
@@ -55,4 +59,9 @@ urlpatterns = [
     # Products Urls
 
     # Containeres Urls
+
+    #Room Urls
+     path('room/<int:id>/view',
+        app_views.CustomDetailView.as_view(model=app_models.Room),
+        name='room_view'),
 ]
