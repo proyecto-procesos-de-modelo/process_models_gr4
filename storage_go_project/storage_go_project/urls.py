@@ -12,7 +12,7 @@ from storage_go_app import urls as app_urls
 from storage_go_app import views as app_views
 
 urlpatterns = [
-
+  
     # App Urls
     path('', include(app_urls, 'app'), namespace='app'),
 
