@@ -10,22 +10,32 @@ from storage_go_app import views as app_views
 
 urlpatterns = [
 
-    # Home
-    path('home/', app_views.home, name='home'),
+    #Room Urls
 
-    # Acceso/Registro Urls
-    path('acceso', app_views.custom_login, name='custom_login'),
-    path('desconectar', app_views.custom_logout, name='custom_logout'),
-    path('registro', app_views.custom_register, name='custom_register'),
-    path('restablecer_contrasena', app_views.custom_reset_password, name='custom_reset_password'),
+    path('room/',
+        app_views.CustomListView.as_view(
+            model=app_models.MoveRoom),
+        name='room_list'),
 
-    # Map Urls
+    path('room/crear',
+        app_views.CustomCreateView.as_view(
+            model=app_models.MoveRoom),
+        name='room_create'),
 
-    # Move Tasks Urls
+    path('room/<int:id>/editar',
+        app_views.CustomUpdateView.as_view(
+            model=app_models.MoveRoom),
+        name='room_update'),
 
-    # Maintenance Task Tasks Urls
+    path('room/<int:id>/ver',
+        app_views.CustomDetailView.as_view(
+            model=app_models.MoveRoom),
+        name='room_view'),
 
-    # Products Urls
+    path('room/<int:id>/borrar',
+        app_views.CustomDeleteView.as_view(
+            model=app_models.MoveRoom),
+        name='room_delete'),
 
-    # Containeres Urls
+
 ]
