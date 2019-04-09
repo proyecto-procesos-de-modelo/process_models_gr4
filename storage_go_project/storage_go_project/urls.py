@@ -1,22 +1,26 @@
-"""storage_go_project URL Configuration
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/2.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+#!/usr/local/bin/python
+# -*- coding: utf-8 -*-
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.views.generic import RedirectView
+
+admin.site.site_header = 'Storage & Go'
+admin.autodiscover()
+
+from storage_go_app import urls as app_urls
+from storage_go_app import views as app_views
 
 urlpatterns = [
-    # admin urls
+
+    # Redirect
+    path('', RedirectView.as_view(url='/panel/mapa/')),
+
+    # App Urls
+    path('panel/', include((app_urls, 'panel'), namespace='panel')),
+
+    # Admin Urls
     path('admin/', admin.site.urls),
+
 ]
