@@ -4,15 +4,22 @@
 
 from django.contrib import admin
 from django.urls import path
-
+from django.contrib.auth import views as auth_views
 
 from storage_go_app import views as app_views
 from storage_go_app import models as app_models
 
+
 urlpatterns = [
 
     # General urls
-    
+    path('acceso/', app_views.custom_login, name='custom_login'),
+    path('desconectar/', auth_views.LogoutView.as_view(), name='logout'),
+
+    path('activacion/<uidb64>/<token>/', app_views.activation, name='activation'),
+    path('password_reset/', app_views.password_reset, name='password_reset'),
+    path('password_reset_form/<uidb64>/<token>/', app_views.password_reset_form, name='password_reset_form'),
+
     # Map Urls
     path('mapa', app_views.map, name='map'),
     path('mapa/estadisticas', app_views.map_statistics, name='map_stadistics'),
