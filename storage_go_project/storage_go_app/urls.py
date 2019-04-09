@@ -7,16 +7,47 @@ from django.urls import path
 
 
 from storage_go_app import views as app_views
+from storage_go_app import models as app_models
 
 urlpatterns = [
 
-    #Room Urls
+    # Map Urls
+    path('mapa',
+        app_views.map.as_view(),
+        name='map_stadistics'),
 
+    # Move Tasks Urls
+    path('tareas/',
+        app_views.CustomListView.as_view(
+            model=app_models.MoveTask),
+        name='task_list'),
+
+    path('tareas/crear',
+        app_views.CustomCreateView.as_view(
+            model=app_models.MoveTask),
+        name='task_create'),
+
+    path('tareas/<int:id>/editar',
+        app_views.CustomUpdateView.as_view(
+            model=app_models.MoveTask),
+        name='task_update'),
+
+    path('tareas/<int:id>/ver',
+        app_views.CustomDetailView.as_view(
+            model=app_models.MoveTask),
+        name='task_view'),
+
+    path('tareas/<int:id>/borrar',
+        app_views.CustomDeleteView.as_view(
+            model=app_models.MoveTask),
+        name='task_delete'),
+
+    # Room
     path('room/',
         app_views.CustomListView.as_view(
             model=app_models.MoveRoom),
         name='room_list'),
-
+  
     path('room/crear',
         app_views.CustomCreateView.as_view(
             model=app_models.MoveRoom),
@@ -36,6 +67,3 @@ urlpatterns = [
         app_views.CustomDeleteView.as_view(
             model=app_models.MoveRoom),
         name='room_delete'),
-
-
-]
