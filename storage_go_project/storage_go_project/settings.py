@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'shipping_app',
+    'storage_go_app',
     'widget_tweaks',
 ]
 
@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'global_login_required.GlobalLoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'storage_go_project.urls'
@@ -122,7 +123,7 @@ USE_TZ = True
 # ********** SESSION CONFIG **********
 
 LOGIN_URL = 'panel:custom_login'
-LOGOUT_REDIRECT_URL = 'panel:home'
+LOGOUT_REDIRECT_URL = 'panel:map'
 
 # ********** STATIC FILES **********
 

@@ -4,6 +4,7 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
+from django.views import View
 
 from global_login_required import login_not_required
 
@@ -43,6 +44,20 @@ def custom_login(request):
         'title': title,
         'form': form,
     })
+
+
+def map(request):
+    """
+    """
+
+    return render(request, 'map.html', {})
+
+
+def map_statistics(request):
+    """
+    """
+
+    return render(request, 'map.html', {})
 
 
 class CustomDetailView(View):
@@ -200,13 +215,15 @@ class CustomCreateView(View):
 
 
 class CustomFilterView(View):
-	
-    title = 'Filtrar Categorías'
-    elements = cms_models.Categoria.objects.all()
-    urls = getCategoryUrls()
 
-    if request.method == 'POST':
-        print("POST")
+    #title = 'Filtrar Categorías'
+    #elements = cms_models.Categoria.objects.all()
+    #urls = getCategoryUrls()
+
+    model = None
+    urls = None
+
+    def post(self, request, *args, **kwargs):
         form = cms_forms.CategoryFilterForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
@@ -247,22 +264,23 @@ class CustomFilterView(View):
                 elements = elements.filter(categoria_padre_id=categoria_padre.id)
                 #elements = elements.filter(categoria_padre=data['categoria_padre'])
 
-            return category_list(request, elements)
+            return None
 
-        else:
-            print("form invalid")
+    def get(self, request, *args, **kwargs):
+        """
+        """
 
-    else:
-        print("GET")
+
         form = cms_forms.CategoryFilterForm()
-
+    """
     return render(request, 'filter.html', {
         'title': title,
         'urls': urls,
         'form': form,
-    })    
+    })
+    """
 
-  
+
 class CustomUpdateView(View):
     """
     """
@@ -328,7 +346,3 @@ class CustomUpdateView(View):
             'urls': self.urls,
             'element': self.element
         })
-
-
-
-

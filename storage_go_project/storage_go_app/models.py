@@ -9,26 +9,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import User
 
 # Create your models here.
-
-"""
-class Worker(models.Model):
-
-    user =
-"""
-
-class Entity(models.Model):
-    """
-    """
-
-    STATUS = (("Pendiente", "Pendiente"), ("En Proceso", "En Proceso"), ("Terminada", "Terminada"))
-    status = models.CharField(verbose_name=_("Estado"), max_length=10, choices=STATUS, default='Pendiente')
-    priority = models.PositiveIntegerField(verbose_name=_('Prioridad'), validators=[MaxValueValidator(3), MinValueValidator(1)])
-    work = models.ForeignKey(User, verbose_name=_('Trabajador'), null=True, on_delete=models.SET_NULL)
-
-    class Meta:
-        abstract = True
-
-
 class Room(models.Model):
     """
     """
@@ -51,20 +31,18 @@ class Room(models.Model):
         return str(self.id)
 
 
-class Product(Entity):
+class Product(models.Model):
     """
     """
 
-    STATUS = (("Pendiente", "Pendiente"), ("En Proceso", "En Proceso"), ("Terminada", "Terminada"))
-    status = models.CharField(verbose_name=_("Estado"), max_length=10, choices=STATUS, default='Pendiente')
+    name = models.CharField(verbose_name=_("Nombre"), max_length=50)
     priority = models.PositiveIntegerField(verbose_name=_('Prioridad'), validators=[MaxValueValidator(3), MinValueValidator(1)])
-    #containers = models.
     entry_date = models.DateTimeField(verbose_name=_("Fecha de Entrada"), auto_now_add=True)
     exit_date = models.DateTimeField(verbose_name=_("Fecha de Entrada"))
     sla = models.FileField(verbose_name=_('Service Level Agreement'))
     #client = models.CharField(verbose_name=_("Cliente"), max_length=50)
-    #humidity = models.PositiveIntegerField(verbose_name=_('Humedad'), null=True)
-    #temperature = models.IntegerField(verbose_name=_('Temperatura'), null=True)
+    humidity = models.PositiveIntegerField(verbose_name=_('Humedad'), null=True)
+    temperature = models.IntegerField(verbose_name=_('Temperatura'), null=True)
 
     class Meta:
         verbose_name = 'Producto'
@@ -76,9 +54,8 @@ class Container(models.Model):
     """
     """
 
-    #code = models.CharField(verbose_name=_("Nombre"), max_length=50)
-    room = models.ForeignKey(Room, verbose_name=_('Sala'), on_delete=models.SET_NULL)
-    product = models.ForeignKey(Product, verbose_name=_('Producto'), on_delete=models.models.SET_NULL)
+    room = models.ForeignKey(Room, verbose_name=_('Sala'), on_delete=models.PROTECT, related_name='container_room')
+    product = models.ForeignKey(Product, verbose_name=_('Producto'), on_delete=models.PROTECT, related_name='container_product')
 
     class Meta:
         verbose_name = 'Contenedor'
@@ -86,13 +63,14 @@ class Container(models.Model):
         db_table = 'container'
 
 
-class MoveTask(Entity):
+class MoveTask(models.Model):
     """
     """
 
-    container = models.ForeignKey(Container)
-    #origin
-    #destination
+    container = models.ForeignKey(Container, verbose_name=_('Contenedor'), on_delete=models.PROTECT, related_name='move_task_container')
+    origin = models.ForeignKey(Room, verbose_name=_('Sala'), null=True, on_delete=models.SET_NULL, related_name='origin_room')
+    destination = models.ForeignKey(Room, verbose_name=_('Sala'), null=True, on_delete=models.SET_NULL, related_name='destination_room')
+    worker = models.ForeignKey(User, verbose_name=_('Trabajador'), null=True, on_delete=models.SET_NULL, related_name='move_task_worker')
 
     class Meta:
         verbose_name = 'Tarea de Movimiento'
@@ -100,12 +78,13 @@ class MoveTask(Entity):
         db_table = 'move_task'
 
 
-class MaintenanceTask(Entity):
+class MaintenanceTask(models.Model):
     """
     """
 
-    #place
-    #machine
+    room = models.ForeignKey(Room, verbose_name=_('Sala'), null=True, on_delete=models.SET_NULL, related_name='maintenance_task_room')
+    machine = models.CharField(verbose_name=_("Máquina"), max_length=50)
+    worker = models.ForeignKey(User, verbose_name=_('Trabajador'), null=True, on_delete=models.SET_NULL, related_name='maintenance_task_worker')
 
     class Meta:
         verbose_name = 'Tarea de Mantenimiento'
