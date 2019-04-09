@@ -19,13 +19,4 @@ urlpatterns = [
     path('registro', app_views.custom_register, name='custom_register'),
     path('restablecer_contrasena', app_views.custom_reset_password, name='custom_reset_password'),
 
-    # Map Urls
-
-    # Move Tasks Urls
-
-    # Maintenance Task Tasks Urls
-
-    # Products Urls
-
-    # Containeres Urls
 ]
