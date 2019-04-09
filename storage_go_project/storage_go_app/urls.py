@@ -11,16 +11,8 @@ from storage_go_app import models as app_models
 
 urlpatterns = [
 
-
-    # Home
-    path('home/', app_views.home, name='home'),
-
-    # Acceso/Registro Urls
-    path('acceso', app_views.custom_login, name='custom_login'),
-    path('desconectar', app_views.custom_logout, name='custom_logout'),
-    path('registro', app_views.custom_register, name='custom_register'),
-    path('restablecer_contrasena', app_views.custom_reset_password, name='custom_reset_password'),
-
+    # General urls
+    
     # Map Urls
     path('mapa', app_views.map, name='map'),
     path('mapa/estadisticas', app_views.map_statistics, name='map_stadistics'),
@@ -81,7 +73,6 @@ urlpatterns = [
         name='room_delete'),
 
     # Maintenance Tasks Urls
-
 
 ]
 
