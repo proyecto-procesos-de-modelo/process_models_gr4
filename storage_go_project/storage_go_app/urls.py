@@ -11,24 +11,12 @@ from storage_go_app import models as app_models
 
 urlpatterns = [
 
-    # Home
-    path('home/', app_views.home, name='home'),
-
-    # Acceso/Registro Urls
-    path('acceso', app_views.custom_login, name='custom_login'),
-    path('desconectar', app_views.custom_logout, name='custom_logout'),
-    path('registro', app_views.custom_register, name='custom_register'),
-    path('restablecer_contrasena', app_views.custom_reset_password, name='custom_reset_password'),
-
     # Map Urls
     path('mapa',
         app_views.map.as_view(),
         name='map_stadistics'),
 
-   
     # Move Tasks Urls
-
-
     path('tareas/',
         app_views.CustomListView.as_view(
             model=app_models.MoveTask),
@@ -54,14 +42,28 @@ urlpatterns = [
             model=app_models.MoveTask),
         name='task_delete'),
 
-    # Maintenance Task Tasks Urls
+    # Room
+    path('room/',
+        app_views.CustomListView.as_view(
+            model=app_models.MoveRoom),
+        name='room_list'),
+  
+    path('room/crear',
+        app_views.CustomCreateView.as_view(
+            model=app_models.MoveRoom),
+        name='room_create'),
 
-    # Products Urls
+    path('room/<int:id>/editar',
+        app_views.CustomUpdateView.as_view(
+            model=app_models.MoveRoom),
+        name='room_update'),
 
-    # Containeres Urls
-
-    #Room Urls
-     path('room/<int:id>/view',
-        app_views.CustomDetailView.as_view(model=app_models.Room),
+    path('room/<int:id>/ver',
+        app_views.CustomDetailView.as_view(
+            model=app_models.MoveRoom),
         name='room_view'),
-]
+
+    path('room/<int:id>/borrar',
+        app_views.CustomDeleteView.as_view(
+            model=app_models.MoveRoom),
+        name='room_delete'),
