@@ -5,14 +5,19 @@
 from django.contrib import admin
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.conf.urls.static import static
 
 from storage_go_app import views as app_views
 from storage_go_app import models as app_models
+
+from storage_go_project import settings
 
 
 urlpatterns = [
 
     # General urls
+    path('', app_views.home, name='home'),
+
     path('acceso/', app_views.custom_login, name='custom_login'),
     path('desconectar/', auth_views.LogoutView.as_view(), name='logout'),
 
@@ -82,6 +87,10 @@ urlpatterns = [
     # Maintenance Tasks Urls
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 

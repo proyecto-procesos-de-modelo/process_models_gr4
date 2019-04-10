@@ -25,7 +25,9 @@ SECRET_KEY = 'n!i5up^@x!mvotj%!o2w@xf*k=y-!-x82qn)1h5==yvz+1hm3i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '*'
+]
 
 
 # Application definition
@@ -130,4 +132,28 @@ LOGOUT_REDIRECT_URL = 'panel:map'
 # ********** STATIC FILES **********
 
 # DEVELOPMENT
+
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+STATICFILES_FINDERS = [
+       "django.contrib.staticfiles.finders.FileSystemFinder",
+       "django.contrib.staticfiles.finders.AppDirectoriesFinder"
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+# ********** MEDIA FILES **********
+
+# DEVELOPMENT
+
+MEDIA_URL = '/media/'
+
+MEDIAFILES_DIRS = [
+    os.path.join(BASE_DIR, "media"),
+]
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
