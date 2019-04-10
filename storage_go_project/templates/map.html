@@ -1,0 +1,323 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- Mapa -->
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col">
+          <div class="card">
+            <div class="card-header">
+              <div class="container-fluid">
+                <div class="row">
+                  <div class="col-8">
+                    <h5>Mapa</h5>
+                  </div>
+                  <div class="col-4">
+                    <button type="button" data-toggle="modal" data-target="#statictics" class="btn btn-outline-primary float-right btn-sm">
+                      <span class="fas fa-chart-bar"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body custom-card-body">
+
+              <div class="container-fluid map">
+
+                <div class="row row-1">
+                  <div class="col-6 sala no-open">
+                    <p>Sala 1</p>
+                  </div>
+                  <div class="col-6 sala open">
+                    <p>Sala 2</p>
+                  </div>
+                </div>
+
+                <div class="row row-2">
+
+                  <div class="col">
+                    <div class="row sala open" style="height: 33%;">
+                      <p>Sala A</p>
+                    </div>
+                    <div class="row sala no-open" style="height: 33%;">
+                      <p>Sala B</p>
+                    </div>
+                    <div class="row sala no-open" style="height: 33%;">
+                      <p>Sala C</p>
+                    </div>
+                  </div>
+
+                  <div class="col">
+                  </div>
+
+                  <div class="col">
+                    <div class="row" style="height: 12.5%;">
+                    </div>
+                    <div class="row" style="height: 12.5%;">
+                    </div>
+                    <div class="row sala otro" style="height: 12.5%;">
+                      <p>Vestuarios</p>
+                    </div>
+                    <div class="row" style="height: 12.5%;">
+                      <div class="col-6 sala otro">
+                        <p>WC1</p>
+                      </div>
+                      <div class="col-6 sala otro">
+                        <p>WC2</p>
+                      </div>
+                    </div>
+                    <div class="row" style="height: 12.5%;">
+                      <div class="col-6 sala otro">
+                        <p>Jefe</p>
+                      </div>
+                      <div class="col-6 sala otro">
+                        <p>Almacén</p>
+                      </div>
+                    </div>
+                    <div class="row" style="height: 12.5%;">
+                      <div class="col-6 sala otro">
+                        <p>Descanso</p>
+                      </div>
+                      <div class="col-6 sala otro">
+                        <p>Taller</p>
+                      </div>
+                    </div>
+                    <div class="row" style="height: 12.5%;">
+                    </div>
+                  </div>
+
+                  <div class="col">
+                  </div>
+
+                  <div class="col">
+                    <div class="row" style="height: 14%;">
+                    </div>
+                    <div class="row sala open" style="height: 14%;">
+                      <p>F1</p>
+                    </div>
+                    <div class="row sala no-open" style="height: 14%;">
+                      <p>F2</p>
+                    </div>
+                    <div class="row sala no-open" style="height: 14%;">
+                      <p>F3</p>
+                    </div>
+                    <div class="row sala no-open" style="height: 14%;">
+                      <p>F4</p>
+                    </div>
+                    <div class="row sala open" style="height: 14%;">
+                      <p>F5</p>
+                    </div>
+                    <div class="row sala open" style="height: 14%;">
+                      <p>F6</p>
+                    </div>
+                  </div>
+
+                  <div class="col">
+                  </div>
+
+                  <div class="col">
+                    <div class="row sala no-open" style="height: 20%;">
+                      <p>M1</p>
+                    </div>
+                    <div class="row sala open" style="height: 20%;">
+                      <p>M2</p>
+                    </div>
+                    <div class="row sala open" style="height: 20%;">
+                      <p>M3</p>
+                    </div>
+                    <div class="row sala open" style="height: 20%;">
+                      <p>M4</p>
+                    </div>
+                    <div class="row sala open" style="height: 20%;">
+                      <p>F7</p>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="row row-3">
+                  <div class="col">
+                  </div>
+                </div>
+
+                <div class="row row-4">
+                  <div class="col-4 sala open">
+                    <p>Embarque</p>
+                  </div>
+                  <div class="col-4 sala otro">
+                    <p>Contabilidad</p>
+                  </div>
+                  <div class="col-4 sala otro">
+                    <p>CEO</p>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Open Room Modal -->
+    <div class="modal fade" id="view-open-room" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Ver Sala</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p><b>Número de Sala:</b></p>
+            <p><b>Estado:</b> Abierta</p>
+            <p><b>Contenedores:</b></p>
+            <!-- Room Area -->
+            <div class="container-fluid" style="height: 200px;">
+              <div class="row" style="height: 20%;">
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+              </div>
+              <div class="row" style="height: 20%;">
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+              </div>
+              <div class="row" style="height: 20%;">
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+                <div class="col-1 sala empty">
+                </div>
+              </div>
+              <div class="row" style="height: 20%;">
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+              </div>
+              <div class="row" style="height: 20%;">
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+                <div class="col-1 sala full">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" data-dismiss="modal" class="btn btn-outline-danger custom_alert">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+{% endblock content %}

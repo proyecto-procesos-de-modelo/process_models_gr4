@@ -178,7 +178,7 @@ def custom_login(request):
                 if user.is_active:
                     login(request, user)
 
-                    return redirect('panel:shipper_list')
+                    return redirect('panel:map')
 
     else:
         form = storage_forms.LoginForm()
