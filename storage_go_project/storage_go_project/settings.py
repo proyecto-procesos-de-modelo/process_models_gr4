@@ -25,7 +25,9 @@ SECRET_KEY = 'n!i5up^@x!mvotj%!o2w@xf*k=y-!-x82qn)1h5==yvz+1hm3i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '*'
+]
 
 
 # Application definition
@@ -37,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storage_go_app',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'global_login_required.GlobalLoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'storage_go_project.urls'
@@ -54,7 +59,9 @@ ROOT_URLCONF = 'storage_go_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, "templates"),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -117,4 +124,36 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
+# ********** SESSION CONFIG **********
+
+LOGIN_URL = 'panel:custom_login'
+LOGOUT_REDIRECT_URL = 'panel:map'
+
+# ********** STATIC FILES **********
+
+# DEVELOPMENT
+
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+STATICFILES_FINDERS = [
+       "django.contrib.staticfiles.finders.FileSystemFinder",
+       "django.contrib.staticfiles.finders.AppDirectoriesFinder"
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+# ********** MEDIA FILES **********
+
+# DEVELOPMENT
+
+MEDIA_URL = '/media/'
+
+MEDIAFILES_DIRS = [
+    os.path.join(BASE_DIR, "media"),
+]
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
