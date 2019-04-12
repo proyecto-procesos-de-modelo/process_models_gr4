@@ -17,10 +17,9 @@ urlpatterns = [
 
     # General urls
     path('', app_views.home, name='home'),
-
+  
     path('acceso/', app_views.custom_login, name='custom_login'),
     path('desconectar/', auth_views.LogoutView.as_view(), name='logout'),
-
     path('activacion/<uidb64>/<token>/', app_views.activation, name='activation'),
     path('password_reset/', app_views.password_reset, name='password_reset'),
     path('password_reset_form/<uidb64>/<token>/', app_views.password_reset_form, name='password_reset_form'),
@@ -63,7 +62,6 @@ urlpatterns = [
             model=app_models.Room),
         name='room_list'),
 
-
     path('room/crear',
         app_views.CustomCreateView.as_view(
             model=app_models.Room),
@@ -84,7 +82,59 @@ urlpatterns = [
             model=app_models.Room),
         name='room_delete'),
 
+    # Product Urls
+
+    path('product/',
+        app_views.CustomCreateView.as_view(
+            model=app_models.Product),
+        name='product_list'),
+
+    path('product/crear',
+        app_views.CustomCreateView.as_view(
+            model=app_models.Product),
+        name='product_create'),
+
+    path('product/<int:id>/editar',
+        app_views.CustomUpdateView.as_view(
+            model=app_models.Product),
+        name='product_update'),
+
+    path('product/<int:id>/ver',
+        app_views.CustomDetailView.as_view(
+            model=app_models.Product),
+        name='product_view'),
+
+    path('product/<int:id>/borrar',
+        app_views.CustomDeleteView.as_view(
+            model=app_models.Product),
+        name='product_delete'),
+
     # Maintenance Tasks Urls
+
+    path('maintenance/',
+        app_views.CustomCreateView.as_view(
+            model=app_models.MaintenanceTask),
+        name='maintenance_list'),
+
+    path('maintenance/crear',
+        app_views.CustomCreateView.as_view(
+            model=app_models.MaintenanceTask),
+        name='maintenance_create'),
+
+    path('maintenance/<int:id>/editar',
+        app_views.CustomUpdateView.as_view(
+            model=app_models.MaintenanceTask),
+        name='maintenance_update'),
+
+    path('maintenance/<int:id>/ver',
+        app_views.CustomDetailView.as_view(
+            model=app_models.MaintenanceTask),
+        name='maintenance_view'),
+
+    path('maintenance/<int:id>/borrar',
+        app_views.CustomDeleteView.as_view(
+            model=app_models.MaintenanceTask),
+        name='maintenance_delete'),
 
 ]
 
