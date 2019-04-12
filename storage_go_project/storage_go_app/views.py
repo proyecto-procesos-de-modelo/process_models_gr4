@@ -326,7 +326,7 @@ class CustomListView(View):
             'element': self.element
 	})
 
-
+      
 class CustomDeleteView(View):
     """
     """
@@ -572,4 +572,5 @@ class CustomUpdateView(View):
             'form': form,
             'urls': self.urls,
             'element': self.element
-})
+        })
+

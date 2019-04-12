@@ -17,10 +17,9 @@ urlpatterns = [
 
     # General urls
     path('', app_views.home, name='home'),
-
+  
     path('acceso/', app_views.custom_login, name='custom_login'),
     path('desconectar/', auth_views.LogoutView.as_view(), name='logout'),
-
     path('activacion/<uidb64>/<token>/', app_views.activation, name='activation'),
     path('password_reset/', app_views.password_reset, name='password_reset'),
     path('password_reset_form/<uidb64>/<token>/', app_views.password_reset_form, name='password_reset_form'),
@@ -136,7 +135,6 @@ urlpatterns = [
         app_views.CustomDeleteView.as_view(
             model=app_models.MaintenanceTask),
         name='maintenance_delete'),
-
 
 ]
 
