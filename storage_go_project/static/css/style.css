@@ -6,3 +6,53 @@
 .custom-table {
   margin: 0;
 }
+
+.dropdown-menu {
+    width: 200px !important;
+}
+
+.map {
+  height: 600px;
+}
+
+.row-1 {
+  height: 16%;
+}
+
+.row-2 {
+  height: 48%;
+}
+
+.row-3 {
+  height: 16%;
+}
+
+.row-4 {
+  height: 16%;
+}
+
+.sala {
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+}
+
+.otro {
+  background-color: #b3b3b3;
+}
+
+.no-open {
+  background-color: #ff9999;
+}
+
+.open {
+  background-color: #adebad;
+}
+
+.empty {
+  background-color: #E6E6E6;
+}
+
+.full {
+  background-color: #BDBDBD;
+}

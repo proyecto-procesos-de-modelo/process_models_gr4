@@ -10,6 +10,10 @@ from django.core.paginator import Paginator
 from global_login_required import login_not_required
 
 from storage_go_app import forms as storage_forms
+from storage_go_app import permissions as storage_permissions
+from storage_go_app import utilities as storage_utilities
+from storage_go_app import config as storage_config
+from storage_go_app import models as storage_models
 
 # Create your views here.
 @login_not_required
@@ -189,6 +193,7 @@ def custom_login(request):
     })
 
 
+# Map Views
 def map(request):
     """
     """
@@ -196,13 +201,232 @@ def map(request):
     return render(request, 'map.html', {})
 
 
-def map_statistics(request):
+# Statistics Views
+def general_statistics(request):
     """
     """
 
-    return render(request, 'map.html', {})
+    print("general statistics function")
+
+    title = 'Estadísticas del Almacén'
+
+    return render(request, 'statistics.html', {
+        'title': title
+    })
 
 
+# Customized Views
+def download_data(request, id=None):
+    """
+    https://realpython.com/python-requests/
+    https://realpython.com/python-json/
+    """
+
+    print("api function")
+
+    import json
+
+    from storage_go_app import api
+
+    title = 'Información de la API'
+
+    data = api.query()
+    #print(data)
+
+    for ref in data:
+        #print(ref)
+        print(ref['ref'])
+        print(ref['withdrawal'])
+        print(ref['fromLocation'])
+        print(ref['toLocation'])
+        print(ref['totalpackets'])
+        print(ref['creationDate'])
+        print(ref['revisionDate'])
+
+        for product in ref['Products']:
+            print(product['name'])
+            print(product['qty'])
+            print(product['tempMaxDegree'])
+            print(product['tempMinDegree'])
+            print(product['humidMax'])
+            print(product['humidMin'])
+            print(product['sla'])
+
+            """
+            product = storage_models.Product.objects.get_or_create(
+                name = product['name']
+                priority = 1
+                #entry_date = #auto now
+                exit_date = product['sla']
+                #sla = default image file
+                min_humidity = product['humidMin']
+                max_humidity = product['humidMax']
+                min_temperature = product['tempMinDegree']
+                max_temperature = product['tempMaxDegree']
+            )
+            """
+
+        #print(type(ref))
+
+
+    return render(request, 'api_info.html', {
+        'title': title,
+        'data': data,
+    })
+
+
+def permission_create(request):
+    """
+    """
+
+    print("custom create permissions view")
+
+    urls = storage_utilities.getUrls('Permisos Personalizados')
+    #print(urls)
+
+    title = "Crear Permiso"
+
+    if request.method == 'POST':
+        #print("POST")
+
+        form = storage_forms.CustomPermissionForm(request.POST)
+        print(form)
+        if form.is_valid():
+            form.save()
+
+    else:
+        #print("GET")
+        form = storage_forms.CustomPermissionForm()
+
+    return render(request, 'create_permissions.html', {
+        'title': title,
+        'form': form,
+        'urls': urls,
+    })
+
+
+def permission_load(request):
+    """
+    """
+
+    print("custom load permissions view")
+
+    from django.apps import apps
+    from django.http import HttpResponse
+    #from django.core import serializers
+    from django.contrib.contenttypes.models import ContentType
+    import json
+
+
+    type = request.GET.get('type', None)
+    print(type)
+    model = request.GET.get('model', None)
+    print(model)
+    object = request.GET.get('object', None)
+    print(object)
+
+    data = None
+
+    if type == 'Modelo': # si el tipo es de modelo
+        print("type model")
+        content_types = ContentType.objects.filter(app_label='storage_go_app')
+        list = []
+        for model in content_types:
+            aux_tuple = (model.id, str(model))
+            list.append(aux_tuple)
+        data = json.dumps(list)
+        print("return models")
+        print(data)
+
+        return HttpResponse(data, content_type='application/json')
+
+    elif type == 'Objeto':
+        print("type object")
+        if model == '':
+            print("model is none")
+            content_types = ContentType.objects.filter(app_label='storage_go_app')
+            list = []
+            for model in content_types:
+                aux_tuple = (model.id, str(model))
+                list.append(aux_tuple)
+            data = json.dumps(list)
+            print("return models")
+            print(data)
+
+            return HttpResponse(data, content_type='application/json')
+
+        else:
+            print("model is not none")
+            objects = None
+            content_type = get_object_or_404(ContentType, id=model)
+            model = apps.get_model('storage_go_app', content_type.model)
+            objects = model.objects.all()
+
+            list = []
+            for object in objects:
+                aux_tuple = (object.id, str(object))
+                list.append(aux_tuple)
+            data = json.dumps(list)
+            print("return objects")
+            print(data)
+
+            return HttpResponse(data, content_type='application/json')
+
+    elif type == 'Atributo':
+        print("type attribute")
+
+        if model == '':
+            print("model is none")
+            content_types = ContentType.objects.filter(app_label='storage_go_app')
+            list = []
+            for model in content_types:
+                aux_tuple = (model.id, str(model))
+                list.append(aux_tuple)
+            data = json.dumps(list)
+            print("return models")
+            print(data)
+
+            return HttpResponse(data, content_type='application/json')
+
+        else:
+            print("models is not none")
+            content_type = get_object_or_404(ContentType, id=model)
+            model = apps.get_model('storage_go_app', content_type.model)
+
+            if object == '':
+                print("object is none")
+                objects = model.objects.all()
+                list = []
+                for object in objects:
+                    aux_tuple = (object.id, str(object))
+                    list.append(aux_tuple)
+                data = json.dumps(list)
+                print("return objects")
+                print(data)
+
+                return HttpResponse(data, content_type='application/json')
+
+            else:
+                print("object is not none")
+                content_types = ContentType.objects.filter(app_label='storage_go_app')
+                model = apps.get_model('storage_go_app', content_type.model)
+                object = get_object_or_404(model, id=object)
+                attributes = object._meta.fields #_meta.get_fields(include_parents=False)
+                list = []
+                for attribute in attributes:
+                    aux_tuple = (str(attribute.verbose_name), str(attribute.verbose_name))
+                    list.append(aux_tuple)
+                data = json.dumps(list)
+                print("return attributes")
+                print(data)
+
+                return HttpResponse(data, content_type='application/json')
+
+    else:
+        print("ninguno de lo anterior")
+        return HttpResponse(data, content_type='application/json')
+
+# Classes
 class CustomDetailView(View):
     """
     """
@@ -215,6 +439,14 @@ class CustomDetailView(View):
         """
         """
 
+        print("custom detail view")
+
+        from django.apps import apps
+        from django.contrib.contenttypes.models import ContentType
+
+        # Map Room
+        room_map_elements = None
+
         title = "Ver "
         title += self.model._meta.verbose_name
 
@@ -222,25 +454,41 @@ class CustomDetailView(View):
 
         fields = []
         model_fields = self.model._meta.get_fields()
-        exclude_fields = getExcludeFields(self.model._meta.verbose_name_plural, 'view')
+        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'view')
         [fields.append(field) for field in model_fields if field.name not in exclude_fields]
-        print(fields)
 
         list = {}
         for field in fields:
-            if field.__class__.__name__ in shipping_config.related_fields:
-                values = []
-                for value in getattr(self.element, field.name).all():
-                    values.append(str(value))
-                list[field.verbose_name] = values
+            attribute_class_name = field.__class__.__name__
+
+            if attribute_class_name == 'ManyToOneRel':
+                attribute_name = field.name.split('_')[0]+'_id'
+
+                content_type = get_object_or_404(ContentType, model=field.name.replace('_', ''))
+                object_model = apps.get_model('storage_go_app', content_type.model)
+
+                data = {
+                    '{0}'.format(attribute_name): self.element.id,
+                }
+                room_map_elements = object_model.objects.filter(**data)
+                #print(room_map_elements)
+
+                #elements = room_map_elements
+                #list['Mapa de Sala'] = elements
+
             else:
                 list[field.verbose_name] = getattr(self.element, field.name)
+
         self.element.fields_values = list
 
         return render(request, 'view.html', {
         'title': title,
         'element': self.element,
+        'model': self.model,
+
+        'room_map': room_map_elements
     })
+
 
 class CustomListView(View):
     """
@@ -258,26 +506,35 @@ class CustomListView(View):
         """
         """
 
+        print("custom list view function")
+
+        #aux = storage_permissions.check_permissions(request)
+        #print(aux)
+
         title = self.model._meta.verbose_name_plural
 
-        self.urls = getUrls(self.model._meta.verbose_name_plural)
+        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
+        #print(self.urls)
 
         if self.elements is None:
-            elements = self.model.objects.all().order_by('-created_date')
+            elements = self.model.objects.all().order_by('-id')
         else:
             elements = self.elements
+        #print(elements)
 
         order = request.GET.get('order')
         if order is not None:
             elements = elements.order_by(order)
         else:
-            order = '-created_date'
+            order = '-id'
 
         fields = []
         model_fields = self.model._meta.get_fields()
-        exclude_fields = getExcludeFields(self.model._meta.verbose_name_plural, 'list')
+        #print(model_fields)
+        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'list')
+        #print(exclude_fields)
         [fields.append(field) for field in model_fields if field.name not in exclude_fields]
-        print(fields)
+        #print(fields)
 
         for element in elements:
             list = []
@@ -307,17 +564,18 @@ class CustomListView(View):
             'page': page,
 	})
 
+
         model_fields = self.model._meta.get_fields()
-        exclude_fields = getExcludeFields(self.model._meta.verbose_name_plural, 'update')
+        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'update')
         [fields.append(field) for field in model_fields if field.name not in exclude_fields]
 
-        form = shipping_forms.get_custom_form(self.model, fields)
+        form = storage_forms.get_custom_form(self.model, fields)
         form = form(instance=self.element)
 
         title = "Editar "
         title += self.model._meta.verbose_name
 
-        self.urls = getUrls(self.model._meta.verbose_name_plural)
+        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
         return render(request, 'update.html', {
             'title': title,
@@ -326,7 +584,7 @@ class CustomListView(View):
             'element': self.element
 	})
 
-      
+
 class CustomDeleteView(View):
     """
     """
@@ -339,14 +597,14 @@ class CustomDeleteView(View):
         """
         """
 
-        self.urls = getUrls(self.model._meta.verbose_name_plural)
+        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
         self.element = get_object_or_404(self.model, id=id)
 
         title = "Borrar "
         title += self.model._meta.verbose_name
 
-        form = shipping_forms.ConfirmationForm(request.POST)
+        form = storage_forms.ConfirmationForm(request.POST)
 
         if form.is_valid():
             self.element.delete()
@@ -370,11 +628,11 @@ class CustomDeleteView(View):
         title = "Borrar "
         title += self.model._meta.verbose_name
 
-        self.urls = getUrls(self.model._meta.verbose_name_plural)
+        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
         self.element = get_object_or_404(self.model, id=id)
 
-        form = shipping_forms.ConfirmationForm()
+        form = storage_forms.ConfirmationForm()
 
         return render(request, 'delete.html', {
         'title': title,
@@ -399,10 +657,10 @@ class CustomCreateView(View):
 
         fields = []
         model_fields = self.model._meta.get_fields()
-        exclude_fields = getExcludeFields(self.model._meta.verbose_name_plural, 'create')
+        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'create')
         [fields.append(field) for field in model_fields if field.name not in exclude_fields]
 
-        form = customforms.get_custom_form(self.model, fields)
+        form = storage_forms.get_custom_form(self.model, fields)
         form = form(request.POST)
 
         if form.is_valid():
@@ -424,15 +682,16 @@ class CustomCreateView(View):
 
         fields = []
         model_fields = self.model._meta.get_fields()
-        exclude_fields = getExcludeFields(self.model._meta.verbose_name_plural, 'create')
+        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'create')
+        print(exclude_fields)
         [fields.append(field) for field in model_fields if field.name not in exclude_fields]
 
-        form = customforms.get_custom_form(self.model, fields)
+        form = storage_forms.get_custom_form(self.model, fields)
 
         title = "Crear "
         title += self.model._meta.verbose_name
 
-        self.urls = getUrls(self.model._meta.verbose_name_plural)
+        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
         return render(request, 'create.html', {
             'title': title,
@@ -470,11 +729,11 @@ class CustomFilterView(View):
 
             if data['start_date'] is not None:
                 elements = elements.filter(
-                Q(created_date__gte=data['start_date']))
+                Q(id__gte=data['start_date']))
 
             if data['end_date'] is not None:
                 elements = elements.filter(
-                Q(created_date__lte=data['end_date']))
+                Q(id__lte=data['end_date']))
 
             if data['start_priority'] is not None:
                 elements = elements.filter(
@@ -520,22 +779,22 @@ class CustomUpdateView(View):
         """
         """
 
-        self.urls = getUrls(self.model._meta.verbose_name_plural)
+        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
         self.element = get_object_or_404(self.model, id=id)
 
         fields = []
         model_fields = self.model._meta.get_fields()
-        exclude_fields = getExcludeFields(self.model._meta.verbose_name_plural, 'update')
+        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'update')
         [fields.append(field) for field in model_fields if field.name not in exclude_fields]
 
-        form = shipping_forms.get_custom_form(self.model, fields)
+        form = storage_forms.get_custom_form(self.model, fields)
         form = form(request.POST, instance=self.element)
 
         if form.is_valid():
             form.save()
 
-            return redirect(getRedirectUrl(self.model._meta.verbose_name_plural))
+            return redirect(storage_utilities.getRedirectUrl(self.model._meta.verbose_name_plural))
 
         else:
             print("formulario invalido")
@@ -550,22 +809,22 @@ class CustomUpdateView(View):
         """
         """
 
-        self.urls = getUrls(self.model._meta.verbose_name_plural)
+        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
         self.element = get_object_or_404(self.model, id=id)
 
         fields = []
         model_fields = self.model._meta.get_fields()
-        exclude_fields = getExcludeFields(self.model._meta.verbose_name_plural, 'update')
+        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'update')
         [fields.append(field) for field in model_fields if field.name not in exclude_fields]
 
-        form = shipping_forms.get_custom_form(self.model, fields)
+        form = storage_forms.get_custom_form(self.model, fields)
         form = form(instance=self.element)
 
         title = "Editar "
         title += self.model._meta.verbose_name
 
-        self.urls = getUrls(self.model._meta.verbose_name_plural)
+        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
         return render(request, 'update.html', {
             'title': title,
@@ -574,3 +833,28 @@ class CustomUpdateView(View):
             'element': self.element
         })
 
+
+def room_detail(request, id=None):
+    """
+    """
+
+    print("room detail view")
+
+
+    title = 'Sala'
+
+    element = get_object_or_404(storage_models.Room, id=id)
+
+    return render(request, 'room.html', {
+        'title': title,
+        'element': element
+    })
+
+
+def getValue(param):
+    return str(param)
+
+
+
+
+#

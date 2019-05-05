@@ -15,39 +15,70 @@ function closeCustomModal() {
   return false;
 }
 
-$('#id_region').on('change', function() {
+/*
+---------- JS Permissions ----------
+*/
 
-  console.log("cambia la comunidad autonoma");
-  $("#id_province").empty();
+$('#id_type').on('change', function() {
+
+  $("#id_model").empty();
+  $("#id_object").empty();
+  $("#id_attribute").empty();
+
 
   loadElements(function(data) {
-    //console.log(data);
     var opts = showElements(data);
-    $("#id_province").append(opts);
+    $("#id_model").append(opts);
   });
-
 })
 
-/*
----------- Dynamic Regions ----------
-*/
+$('#id_model').on('change', function() {
+  var type = $('#id_type').val();
+
+  if (type != 'Modelo') {
+    $("#id_object").empty();
+    $("#id_attribute").empty();
+
+    loadElements(function(data) {
+      var opts = showElements(data);
+      $("#id_object").append(opts);
+    });
+  }
+})
+
+$('#id_object').on('change', function() {
+  var type = $('#id_type').val();
+
+  if (type != 'Objeto') {
+    $("#id_attribute").empty();
+
+    loadElements(function(data) {
+      var opts = showElements(data);
+      $("#id_attribute").append(opts);
+    });
+  }
+})
 
 function loadElements(callback) {
 
-  console.log("cargar elementos");
+  var type =  $("#id_type").val();
+  var model = $("#id_model").val();
+  var object = $("#id_object").val();
 
-  var region = $('#id_region').val();
-  console.log(region);
+  console.log(type);
+  console.log(model);
+  console.log(object);
 
   $.ajax({
     method: "GET",
-    url: '/checkout/cargar_elementos/',
+    url: '/panel/permissions/crear/cargar_elementos/',
     dataType: 'json',
     data: {
-      region: region,
+      type: type,
+      model: model,
+      object: object,
     },
-    success: function(data) {
-      console.log("SUCCESS");
+    success: function(data, status) {
       callback(data);
     },
     error: function(response) {
@@ -58,17 +89,23 @@ function loadElements(callback) {
 }
 
 function showElements(param) {
+  /*
+  var type = $('#id_type').val();
+  var model = $('#id_model').val();
+  var object = $('#id_object').val();
 
-  console.log("mostrar elementos");
-  console.log(param);
+  console.log(type)
+  console.log(model)
+  console.log(object)
 
-  var values = "";
+  console.log(param)
+  */
+  var opts = "";
 
   for (var i = 0; i < param.length; i++) {
-    console.log(param[i]);
-    values += "<option value='" + param[i].pk + "'>" + param[i].fields.name + "</option>";
+    opts += "<option value='" + param[i][0] + "'>" + param[i][1] + "</option>";
   }
-  return values;
+  return opts;
 }
 
 

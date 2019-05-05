@@ -2,7 +2,7 @@
 {% extends "base.html" %}
 
 {% load static %}
-{% load shipping_tags %}
+{% load storage_tags %}
 {% load widget_tweaks %}
 
 {% block content %}
@@ -24,7 +24,6 @@
                 <button type="button" onclick="return openCustomModal('{% url element_create %}')" class="btn btn-outline-primary float-right">
                   <span class="fas fa-plus"></span>
                 </button>
-
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 from storage_go_app import views as app_views
 from storage_go_app import models as app_models
@@ -16,22 +17,24 @@ from storage_go_project import settings
 urlpatterns = [
 
     # General urls
-    path('', app_views.home, name='home'),
-  
+    #path('', app_views.home, name='home'),
+    path('', RedirectView.as_view(url='/panel/mapa/')),
+
     path('acceso/', app_views.custom_login, name='custom_login'),
     path('desconectar/', auth_views.LogoutView.as_view(), name='logout'),
     path('activacion/<uidb64>/<token>/', app_views.activation, name='activation'),
     path('password_reset/', app_views.password_reset, name='password_reset'),
     path('password_reset_form/<uidb64>/<token>/', app_views.password_reset_form, name='password_reset_form'),
 
+    # API Urls
+    path('download_data/', app_views.download_data, name='download_data'),
+
     # Map Urls
-    path('mapa', app_views.map, name='map'),
-    path('mapa/estadisticas', app_views.map_statistics, name='map_stadistics'),
+    path('mapa/', app_views.map, name='map'),
 
     # Move Tasks Urls
-    # CustomListView
     path('tareas/',
-        app_views.CustomCreateView.as_view(
+        app_views.CustomListView.as_view(
             model=app_models.MoveTask),
         name='task_list'),
 
@@ -56,9 +59,8 @@ urlpatterns = [
         name='task_delete'),
 
     # Room
-    # CustomListView
     path('room/',
-        app_views.CustomCreateView.as_view(
+        app_views.CustomListView.as_view(
             model=app_models.Room),
         name='room_list'),
 
@@ -82,10 +84,35 @@ urlpatterns = [
             model=app_models.Room),
         name='room_delete'),
 
-    # Product Urls
+    # Container
+    path('container/',
+        app_views.CustomListView.as_view(
+            model=app_models.Container),
+        name='container_list'),
 
-    path('product/',
+    path('container/crear',
         app_views.CustomCreateView.as_view(
+            model=app_models.Container),
+        name='container_create'),
+
+    path('container/<int:id>/editar',
+        app_views.CustomUpdateView.as_view(
+            model=app_models.Container),
+        name='container_update'),
+
+    path('container/<int:id>/ver',
+        app_views.CustomDetailView.as_view(
+            model=app_models.Container),
+        name='container_view'),
+
+    path('container/<int:id>/borrar',
+        app_views.CustomDeleteView.as_view(
+            model=app_models.Container),
+        name='containerdelete'),
+
+    # Product Urls
+    path('product/',
+        app_views.CustomListView.as_view(
             model=app_models.Product),
         name='product_list'),
 
@@ -110,9 +137,8 @@ urlpatterns = [
         name='product_delete'),
 
     # Maintenance Tasks Urls
-
     path('maintenance/',
-        app_views.CustomCreateView.as_view(
+        app_views.CustomListView.as_view(
             model=app_models.MaintenanceTask),
         name='maintenance_list'),
 
@@ -135,6 +161,36 @@ urlpatterns = [
         app_views.CustomDeleteView.as_view(
             model=app_models.MaintenanceTask),
         name='maintenance_delete'),
+
+    # Permissions Urls
+    path('permissions/',
+        app_views.CustomListView.as_view(
+            model=app_models.CustomPermission),
+        name='permission_list'),
+
+    # path('permissions/crear', app_views.CustomCreateView.as_view(model=app_models.CustomPermission), name='permission_create'),
+
+    path('permissions/crear/', app_views.permission_create, name='permission_create'),
+    path('permissions/crear/cargar_elementos/', app_views.permission_load, name='ajax_permissions_load'),
+
+    path('permissions/<int:id>/editar',
+        app_views.CustomUpdateView.as_view(
+            model=app_models.CustomPermission),
+        name='permission_update'),
+
+    path('permissions/<int:id>/ver',
+        app_views.CustomDetailView.as_view(
+            model=app_models.CustomPermission),
+        name='permission_view'),
+
+    path('permissions/<int:id>/borrar',
+        app_views.CustomDeleteView.as_view(
+            model=app_models.CustomPermission),
+        name='permission_delete'),
+
+    # Statistics Urls
+    path('statistics/', app_views.general_statistics, name='general_statistics'),
+    #path('room_statistics/<int:id>/', app_views.room_statistics, name='room_statistics'),
 
 ]
 
