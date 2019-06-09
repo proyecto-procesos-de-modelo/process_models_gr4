@@ -4,31 +4,61 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User, Group, Permission
+from django.db.models import Q
 
-from storage_go_app import models
+from storage_go_app import models as storage_models
 
 
 # Create your permissions here.
-def check_permissions(request, user_id=None, permission=None): # pass user
+def check_permissions(username=None, type=None, action=None, model=None, object=None, attribute=None):
     """
     """
 
-    print("check permissions function")
+    #print("check permissions function")
 
-    user = get_object_or_404(User, pk=request.user.id)
-    print(user)
+    #print(type)
+    #print(action)
+    #print(model)
+    #print(object)
+    #print(attribute)
 
-    #groups = user.groups.all()
-    #print(groups)
+    user = get_object_or_404(User, username=username)
+    groups = user.groups.all()
 
-    #permissions = user.user_permissions
+    permissions = storage_models.CustomPermission.objects.filter(
+        group__in=groups,
+    )
 
-    #check group
-    user_groups = user.groups.all()
-    print(user_groups)
+    if type == 'Modelo':
+        permissions = permissions.filter(
+            type=type,
+            action=action,
+            model=model
+        )
+
+    elif type == 'Objeto':
+        permissions = permissions.filter(
+            Q(type=type) &
+            Q(action=action) &
+            Q(model=model) &
+            (Q(object=object) |
+            Q(object='Todos'))
+        )
+
+    elif type == 'Atributo':
+        permissions = permissions.filter(
+            Q(type=type) &
+            Q(action=action) &
+            Q(model=model) &
+            (Q(object=object) |
+            Q(object='Todos')) &
+            Q(attribute=attribute) |
+            Q(attribute='Todos')
+    )
+    #print(permissions)
 
     # show info or not
-    if group in user_groups:
+    if permissions:
         return True
     else:
         return False

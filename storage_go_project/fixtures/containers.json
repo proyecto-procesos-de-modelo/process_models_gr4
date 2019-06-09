@@ -1,0 +1,1 @@
+[{"model": "storage_go_app.container", "pk": 104, "fields": {"product": 103, "room_map": 335}}, {"model": "storage_go_app.container", "pk": 105, "fields": {"product": 104, "room_map": 234}}]

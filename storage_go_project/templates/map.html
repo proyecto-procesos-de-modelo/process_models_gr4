@@ -17,13 +17,12 @@
                     <h5>Mapa</h5>
                   </div>
                   <div class="col-4">
-                    <button type="button" onclick="return openCustomModal('{% url 'panel:general_statistics' %}')" class="btn btn-outline-primary float-right btn-sm">
-                      <span class="fas fa-chart-bar"></span>
-                    </button>
-                    <!-- API Button -->
+                    {% check_permission user.username type="Modelo" action="Crear" model="Producto" as aux %}
+                    {% if aux or user.is_superuser %}
                     <button type="button" onclick="return openCustomModal('{% url "panel:download_data" %}')" class="btn btn-outline-primary float-right btn-sm">
                       <span class="fas fa-download"></span>
                     </button>
+                    {% endif %}
                   </div>
                 </div>
               </div>
@@ -33,22 +32,24 @@
               <div class="container-fluid map">
 
                 <div class="row row-1">
-                  {% get_room 1 as room %}
+                  {% get_room 'Sala 1' as room %}
                   {% if room.status == 'Cerrada' %}
                     <div class="col-6 sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')">
+                      <p>{{ room.name }}</p>
                   {% else %}
                     <div class="col-6 sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')">
+                      <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                   {% endif %}
-                    <p>{{ room.name }}</p>
                   </div>
 
-                  {% get_room 2 as room %}
+                  {% get_room 'Sala 2' as room %}
                   {% if room.status == 'Cerrada' %}
                     <div class="col-6 sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')">
+                      <p>{{ room.name }}</p>
                   {% else %}
                     <div class="col-6 sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')">
+                    <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                   {% endif %}
-                    <p>{{ room.name }}</p>
                   </div>
                 </div>
 
@@ -56,31 +57,34 @@
 
                   <div class="col">
 
-                    {% get_room 3 as room %}
+                    {% get_room 'Sala A' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 33%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 33%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 4 as room %}
+                    {% get_room 'Sala B' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 33%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 33%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 5 as room %}
+                    {% get_room 'Sala C' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 33%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 33%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
                   </div>
 
@@ -130,58 +134,64 @@
                     <div class="row" style="height: 14%;">
                     </div>
 
-                    {% get_room 6 as room %}
+                    {% get_room 'F1' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 7 as room %}
+                    {% get_room 'F2' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 8 as room %}
+                    {% get_room 'F3' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 9 as room %}
+                    {% get_room 'F4' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 10 as room %}
+                    {% get_room 'F5' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 11 as room %}
+                    {% get_room 'F6' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 14%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
                   </div>
 
@@ -191,49 +201,54 @@
                   <div class="col">
 
 
-                    {% get_room 13 as room %}
+                    {% get_room 'M1' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 20%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 20%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 14 as room %}
+                    {% get_room 'M2' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 20%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 20%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 15 as room %}
+                    {% get_room 'M3' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 20%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 20%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 16 as room %}
+                    {% get_room 'M4' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 20%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 20%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
 
-                    {% get_room 12 as room %}
+                    {% get_room 'F7' as room %}
                     {% if room.status == 'Cerrada' %}
                       <div class="row sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 20%;">
+                        <p>{{ room.name }}</p>
                     {% else %}
                       <div class="row sala open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')" style="height: 20%;">
+                        <p>{{ room.name }} | {{ room.temperature }}ºC | {{ room.humidity }}%</p>
                     {% endif %}
-                      <p>{{ room.name }}</p>
                     </div>
                   </div>
 
@@ -246,7 +261,7 @@
 
                 <div class="row row-4">
 
-                  {% get_room 17 as room %}
+                  {% get_room 'Embarque' as room %}
                   {% if room.status == 'Cerrada' %}
                     <div class="col-4 sala no-open" onclick="return openCustomModal('{% url 'panel:room_view' room.id %}')">
                   {% else %}

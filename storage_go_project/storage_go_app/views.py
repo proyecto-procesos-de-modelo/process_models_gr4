@@ -2,10 +2,16 @@
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 
+import json
+
+from storage_go_app import api
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.views import View
 from django.core.paginator import Paginator
+from django.contrib.auth.models import Group, User
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 
 from global_login_required import login_not_required
 
@@ -14,6 +20,7 @@ from storage_go_app import permissions as storage_permissions
 from storage_go_app import utilities as storage_utilities
 from storage_go_app import config as storage_config
 from storage_go_app import models as storage_models
+from storage_go_app import procedures as storage_procedures
 
 # Create your views here.
 @login_not_required
@@ -182,7 +189,9 @@ def custom_login(request):
                 if user.is_active:
                     login(request, user)
 
-                    return redirect('panel:map')
+                    user = get_object_or_404(User, id=request.user.id)
+                    group = user.groups.all()
+                    return redirect(str(storage_utilities.getProfileRedirectUrl(group[0])))
 
     else:
         form = storage_forms.LoginForm()
@@ -201,14 +210,133 @@ def map(request):
     return render(request, 'map.html', {})
 
 
+def fichar(request, id=None):
+    """
+    """
+
+    print("fichar function")
+
+    try:
+        active_user = get_object_or_404(storage_models.ActiveUser, user_id=id)
+        print(active_user)
+        active_user.delete()
+    except:
+        storage_models.ActiveUser.objects.create(user_id=id)
+
+    #return redirect(request, 'map.html', {})
+    return redirect('panel:map')
+
+
 # Statistics Views
 def general_statistics(request):
     """
     """
 
+    import json
+    from django.db import connection
+    from datetime import date, timedelta
+
     print("general statistics function")
 
-    title = 'Estadísticas del Almacén'
+    today = date.today()
+    first_day = today - timedelta(days=today.weekday())
+    last_day = first_day + timedelta(days=6)
+
+    print(today)
+    print(first_day)
+    print(last_day)
+
+    title = 'Estadísticas'
+    statistics = {}
+
+    ##### Active Users
+    cursor = connection.cursor()
+    response = cursor.execute(' \
+        SELECT g.name, COUNT(ug.group_id) as num_active_user \
+        FROM auth_group g, active_user au \
+        LEFT JOIN auth_user_groups ug \
+        ON g.id == ug.group_id \
+        AND ug.user_id == au.user_id \
+        GROUP BY g.name; \
+    ')
+    aux = response.fetchall()
+
+    element = {}
+    aux2 = []
+
+    for item in aux:
+        element['group'] = item[0]
+        element['users'] = item[1]
+        aux2.append(element)
+        element = {}
+
+    statistics['active_users'] = aux2
+
+    ##### Move Tasks
+    statistics['move_tasks'] = 0
+
+    ##### Entry Products
+    response = cursor.execute(' \
+        WITH RECURSIVE dates(date) AS ( \
+        VALUES(date("now", "weekday 1", "-7 days")) \
+        UNION ALL \
+        SELECT date(date, "+1 day") \
+        FROM dates \
+        WHERE date < date("now", "weekday 0")) \
+        SELECT d.date, COUNT(p.entry_date) as num_products \
+        FROM dates d \
+        LEFT JOIN product p \
+        ON d.date == p.entry_date \
+        GROUP BY d.date \
+        ORDER BY d.date ASC; \
+    ')
+    aux = response.fetchall()
+
+    element = {}
+    aux2 = []
+
+    for item in aux:
+        element['date'] = item[0]
+        element['num_products'] = item[1]
+        aux2.append(element)
+        element = {}
+
+    statistics['entry_products'] = aux2
+
+    # exit products
+
+    # SLA
+
+    ##### % rooms ocupation
+    response = cursor.execute('')
+    aux = response.fetchall()
+
+    element = {}
+    aux2 = []
+
+    for item in aux:
+        element['name'] = item[0]
+        element['percent'] = item[1]
+        aux2.append(element)
+        element = {}
+
+    statistics['rooms_ocupation'] = aux2
+
+    print(statistics)
+
+    return render(request, 'statistics.html', {
+        'title': title,
+        'statistics': statistics,
+    })
+
+
+def map_statistics(request):
+    """
+    """
+
+    print("general statistics function")
+
+    title = 'Estadísticas'
 
     return render(request, 'statistics.html', {
         'title': title
@@ -224,50 +352,47 @@ def download_data(request, id=None):
 
     print("api function")
 
-    import json
-
-    from storage_go_app import api
-
     title = 'Información de la API'
-
     data = api.query()
-    #print(data)
 
     for ref in data:
-        #print(ref)
-        print(ref['ref'])
-        print(ref['withdrawal'])
-        print(ref['fromLocation'])
-        print(ref['toLocation'])
-        print(ref['totalpackets'])
-        print(ref['creationDate'])
-        print(ref['revisionDate'])
+        if ref['withdrawal'] == True:
+            print("salida")
+            # obtenemos los contenedores
+            for product in ref['Products']:
+                print(product)
+                product = get_object_or_404(storage_models.Product, name=product['name'])
+                print(product)
+                containers = storage_models.Container.objects.filter(product_id=product.id)
+                print(containers)
 
-        for product in ref['Products']:
-            print(product['name'])
-            print(product['qty'])
-            print(product['tempMaxDegree'])
-            print(product['tempMinDegree'])
-            print(product['humidMax'])
-            print(product['humidMin'])
-            print(product['sla'])
+                for container in containers:
+                    destination = storage_models.RoomMap.objects.filter(room_id=34, status='Disponible').order_by('id').first()
+                    print(destination)
 
-            """
-            product = storage_models.Product.objects.get_or_create(
-                name = product['name']
-                priority = 1
-                #entry_date = #auto now
-                exit_date = product['sla']
-                #sla = default image file
-                min_humidity = product['humidMin']
-                max_humidity = product['humidMax']
-                min_temperature = product['tempMinDegree']
-                max_temperature = product['tempMaxDegree']
+                    move_task = storage_models.MoveTask.objects.create(
+                        container = container,
+                        destination = destination
+                    )
+
+        else:
+            print("entrada")
+            # Creamos los productos
+            for product in ref['Products']:
+                num_containers = int(product['qty'])
+
+                print(product['sla'])
+                print(product['sla'].split('T')[0])
+
+                product, created = storage_models.Product.objects.get_or_create(
+                    name = product['name'],
+                    exit_date = product['sla'].split('T')[0],
+                    min_humidity = product['humidMin'],
+                    max_humidity = product['humidMax'],
+                    min_temperature = product['tempMinDegree'],
+                    max_temperature = product['tempMaxDegree'],
+                    num_containers = num_containers
             )
-            """
-
-        #print(type(ref))
-
 
     return render(request, 'api_info.html', {
         'title': title,
@@ -282,20 +407,39 @@ def permission_create(request):
     print("custom create permissions view")
 
     urls = storage_utilities.getUrls('Permisos Personalizados')
-    #print(urls)
 
     title = "Crear Permiso"
 
     if request.method == 'POST':
-        #print("POST")
+        print("POST")
 
         form = storage_forms.CustomPermissionForm(request.POST)
         print(form)
         if form.is_valid():
-            form.save()
+            print("form valid")
+            data = form.cleaned_data
+            print(data)
+            #form.save()
+
+            group = get_object_or_404(Group, name=data['group'])
+
+            custom_permission = storage_models.CustomPermission.objects.create(
+                group = group,
+                type = data['type'],
+                action = data['action'],
+                model = data['model'],
+                object = data['object'],
+                attribute = data['attribute'],
+            )
+
+            return redirect('panel:permission_list')
+
+        else:
+            print("form invalid")
+            print(form.errors)
 
     else:
-        #print("GET")
+        print("GET")
         form = storage_forms.CustomPermissionForm()
 
     return render(request, 'create_permissions.html', {
@@ -345,9 +489,10 @@ def permission_load(request):
         if model == '':
             print("model is none")
             content_types = ContentType.objects.filter(app_label='storage_go_app')
+            print(content_types)
             list = []
             for model in content_types:
-                aux_tuple = (model.id, str(model))
+                aux_tuple = (str(model.model), str(model))
                 list.append(aux_tuple)
             data = json.dumps(list)
             print("return models")
@@ -358,13 +503,14 @@ def permission_load(request):
         else:
             print("model is not none")
             objects = None
-            content_type = get_object_or_404(ContentType, id=model)
+            content_type = get_object_or_404(ContentType, model=model)
+            print(content_type)
             model = apps.get_model('storage_go_app', content_type.model)
             objects = model.objects.all()
 
             list = []
             for object in objects:
-                aux_tuple = (object.id, str(object))
+                aux_tuple = (str(object.__str__()), str(object.__str__()))
                 list.append(aux_tuple)
             data = json.dumps(list)
             print("return objects")
@@ -431,53 +577,65 @@ class CustomDetailView(View):
     """
     """
 
+    # Variables de la clase
     element = None
     model = None
     urls = None
 
     def get(self, request, id=None, *args, **kwargs):
         """
+        Metodo get
         """
 
         print("custom detail view")
 
-        from django.apps import apps
-        from django.contrib.contenttypes.models import ContentType
+        room_map_elements = {}
 
-        # Map Room
-        room_map_elements = None
-
+        # Creamos el título
         title = "Ver "
-        title += self.model._meta.verbose_name
+        title += str(self.model._meta.verbose_name)
 
+        # Obtenemos las Urls
+        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
+
+        # Obtenemos el elemento del que mostrar los detalles
         self.element = get_object_or_404(self.model, id=id)
 
+        # Creamos una lista vacia para los atributos finales
         fields = []
+        # Obtenemos los atributos del modelo
         model_fields = self.model._meta.get_fields()
+        # Obtenemos los atributos que no queremos mostrar
         exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'view')
-        [fields.append(field) for field in model_fields if field.name not in exclude_fields]
 
         list = {}
-        for field in fields:
-            attribute_class_name = field.__class__.__name__
 
-            if attribute_class_name == 'ManyToOneRel':
-                attribute_name = field.name.split('_')[0]+'_id'
+        # Recorremos todos los attributos
+        for field in model_fields:
+            # Si se pueden mostrar
+            if field.name not in exclude_fields:
 
-                content_type = get_object_or_404(ContentType, model=field.name.replace('_', ''))
-                object_model = apps.get_model('storage_go_app', content_type.model)
+                # Obtenemos el valor de los atributos dependiendo del tipo de atributo
+                attribute_class_name = field.__class__.__name__
 
-                data = {
-                    '{0}'.format(attribute_name): self.element.id,
-                }
-                room_map_elements = object_model.objects.filter(**data)
-                #print(room_map_elements)
+                if attribute_class_name == 'ManyToOneRel':
 
-                #elements = room_map_elements
-                #list['Mapa de Sala'] = elements
+                    field_verbose_name = field.name.split('_')[0]
+                    attribute_name = field_verbose_name+'_id'
+                    content_type = get_object_or_404(ContentType, model=field.name.replace('_', ''))
+                    object_model = apps.get_model('storage_go_app', content_type.model)
+                    data = {
+                        '{0}'.format(attribute_name): self.element.id,
+                    }
+                    room_map_elements = object_model.objects.filter(**data).order_by('x', 'y')
 
-            else:
-                list[field.verbose_name] = getattr(self.element, field.name)
+                else:
+                    field_verbose_name = field.name
+                    list[field.verbose_name] = getattr(self.element, field.name)
+
+                # Comprobamos los permisos
+                if storage_permissions.check_permissions(request.user.username, 'Atributo', 'Ver', self.model._meta.verbose_name, self.element.id, field_verbose_name):
+                    fields.append(field)
 
         self.element.fields_values = list
 
@@ -485,8 +643,8 @@ class CustomDetailView(View):
         'title': title,
         'element': self.element,
         'model': self.model,
-
-        'room_map': room_map_elements
+        'room_map': room_map_elements,
+        'urls': self.urls
     })
 
 
@@ -511,16 +669,16 @@ class CustomListView(View):
         #aux = storage_permissions.check_permissions(request)
         #print(aux)
 
+        django_model = self.model
+
         title = self.model._meta.verbose_name_plural
 
         self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
-        #print(self.urls)
 
         if self.elements is None:
             elements = self.model.objects.all().order_by('-id')
         else:
             elements = self.elements
-        #print(elements)
 
         order = request.GET.get('order')
         if order is not None:
@@ -530,11 +688,8 @@ class CustomListView(View):
 
         fields = []
         model_fields = self.model._meta.get_fields()
-        #print(model_fields)
         exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'list')
-        #print(exclude_fields)
         [fields.append(field) for field in model_fields if field.name not in exclude_fields]
-        #print(fields)
 
         for element in elements:
             list = []
@@ -542,7 +697,7 @@ class CustomListView(View):
                 list.append(getattr(element, field.name))
             element.fields_values = list
 
-        paginator = Paginator(elements, 10)
+        paginator = Paginator(elements, 50)
         page = request.GET.get('page')
 
         if page is None:
@@ -562,27 +717,8 @@ class CustomListView(View):
             'title': title,
             'order': order,
             'page': page,
-	})
-
-
-        model_fields = self.model._meta.get_fields()
-        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'update')
-        [fields.append(field) for field in model_fields if field.name not in exclude_fields]
-
-        form = storage_forms.get_custom_form(self.model, fields)
-        form = form(instance=self.element)
-
-        title = "Editar "
-        title += self.model._meta.verbose_name
-
-        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
-
-        return render(request, 'update.html', {
-            'title': title,
-            'form': form,
-            'urls': self.urls,
-            'element': self.element
-	})
+            'model': self.model._meta.verbose_name
+	     })
 
 
 class CustomDeleteView(View):
@@ -602,14 +738,14 @@ class CustomDeleteView(View):
         self.element = get_object_or_404(self.model, id=id)
 
         title = "Borrar "
-        title += self.model._meta.verbose_name
+        title += str(self.model._meta.verbose_name)
 
         form = storage_forms.ConfirmationForm(request.POST)
 
         if form.is_valid():
             self.element.delete()
 
-            return redirect(getRedirectUrl(self.model._meta.verbose_name_plural))
+            return redirect(storage_utilities.getRedirectUrl(self.model._meta.verbose_name_plural))
 
         else:
             print("formulario invalido")
@@ -626,7 +762,7 @@ class CustomDeleteView(View):
         """
 
         title = "Borrar "
-        title += self.model._meta.verbose_name
+        title += str(self.model._meta.verbose_name)
 
         self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
@@ -646,6 +782,7 @@ class CustomCreateView(View):
     """
     custom generic create view for all models
     generic crete form depends the model
+    check permissions to edit only permmited attributes
     """
 
     model = None
@@ -653,10 +790,18 @@ class CustomCreateView(View):
 
     def post(self, request, *args, **kwargs):
         """
+        POST method
         """
 
+        print("custom create function post")
+
+        # Obtenemos las Urls
+        #self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
+
+        # Obtenemos los attributos del elemento
         fields = []
         model_fields = self.model._meta.get_fields()
+        # Obtenemos los atributos que no queremos mostrar
         exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'create')
         [fields.append(field) for field in model_fields if field.name not in exclude_fields]
 
@@ -664,26 +809,32 @@ class CustomCreateView(View):
         form = form(request.POST)
 
         if form.is_valid():
+            #data = form.cleaned_data
             form.save()
 
-            return redirect(getRedirectUrl(self.model._meta.verbose_name_plural))
+            return redirect(storage_utilities.getRedirectUrl(self.model._meta.verbose_name_plural))
 
         else:
             print("formulario invalido")
+            print(form.errors)
 
         return render(request, 'create.html', {
             'form': form,
-            'urls': self.urls,
+            #'urls': self.urls,
         })
 
     def get(self, request, *args, **kwargs):
         """
+        GET method
         """
 
+        print("custom create function")
+
+        # Obtenemos los attributos del elemento
         fields = []
         model_fields = self.model._meta.get_fields()
+        # Obtenemos los atributos que no queremos mostrar
         exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'create')
-        print(exclude_fields)
         [fields.append(field) for field in model_fields if field.name not in exclude_fields]
 
         form = storage_forms.get_custom_form(self.model, fields)
@@ -701,6 +852,8 @@ class CustomCreateView(View):
 
 
 class CustomFilterView(View):
+    """
+    """
 
     #title = 'Filtrar Categorías'
     #elements = cms_models.Categoria.objects.all()
@@ -758,13 +911,12 @@ class CustomFilterView(View):
 
 
         form = cms_forms.CategoryFilterForm()
-    """
-    return render(request, 'filter.html', {
-        'title': title,
-        'urls': urls,
-        'form': form,
-    })
-    """
+
+        return render(request, 'filter.html', {
+            'title': title,
+            'urls': urls,
+            'form': form,
+        })
 
 
 class CustomUpdateView(View):
@@ -777,12 +929,20 @@ class CustomUpdateView(View):
 
     def post(self, request, id=None, *args, **kwargs):
         """
+        post method
         """
+
+        print("custom update function")
+
+        # Obtenemos las urls
 
         self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
+        # Obtenemos el elemento
         self.element = get_object_or_404(self.model, id=id)
+        object = get_object_or_404(self.model, id=id)
 
+        # Obtenemos los atributos
         fields = []
         model_fields = self.model._meta.get_fields()
         exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'update')
@@ -791,13 +951,42 @@ class CustomUpdateView(View):
         form = storage_forms.get_custom_form(self.model, fields)
         form = form(request.POST, instance=self.element)
 
+        args = {}
+
         if form.is_valid():
-            form.save()
+            data = form.cleaned_data
+            #print(data)
+
+            for field in fields:
+                #print(field)
+                if field.name in data:
+                    attribute_class_name = field.__class__.__name__
+                    #print(attribute_class_name)
+                    if attribute_class_name == 'ForeignKey':
+                        attribute_name = field.name+'_id'
+                        #attribute_name = str(self.model._meta.db_table) + '_' + str(field.name)
+                    else:
+                        attribute_name = field.name
+
+                    #print(attribute_name)
+
+                    data[field.name]
+                    if data[field.name] is not None and data[field.name] != getattr(object, attribute_name) and data[field.name] != '':
+                    #if data[field.name] != getattr(object, attribute_name):
+                        #print("new value")
+                        value = data[field.name]
+                    else:
+                        value = getattr(object, attribute_name)
+
+                    args[attribute_name] = value
+
+            object.custom_save(args)
 
             return redirect(storage_utilities.getRedirectUrl(self.model._meta.verbose_name_plural))
 
         else:
             print("formulario invalido")
+            print(form.errors)
 
         return render(request, 'update.html', {
             'form': form,
@@ -807,24 +996,38 @@ class CustomUpdateView(View):
 
     def get(self, request, id=None, *args, **kwargs):
         """
+        get method
+        generamos el formulario en funcion de los permisos que tiene cada usuario para modificar
         """
 
+        print("custom update function")
+
+        # Obtenemos las urls
         self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
-        self.element = get_object_or_404(self.model, id=id)
-
-        fields = []
-        model_fields = self.model._meta.get_fields()
-        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'update')
-        [fields.append(field) for field in model_fields if field.name not in exclude_fields]
-
-        form = storage_forms.get_custom_form(self.model, fields)
-        form = form(instance=self.element)
-
+        # creamos el titulo
         title = "Editar "
         title += self.model._meta.verbose_name
 
-        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
+        # Obtenemos el elemento
+        self.element = get_object_or_404(self.model, id=id)
+
+        # Obtenemos los atributos
+        fields = []
+        model_fields = self.model._meta.get_fields()
+        #print(model_fields)
+        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'update')
+
+        # Comprobamos los permisos
+        for field in model_fields:
+            if field.name not in exclude_fields:
+                field_verbose_name = self.model._meta.get_field(field.name).verbose_name
+                if storage_permissions.check_permissions(request.user.username, 'Atributo', 'Modificar', self.model._meta.verbose_name, self.element.id, field_verbose_name):
+                    fields.append(field)
+
+        # creamos el formulario
+        form = storage_forms.get_custom_form(self.model, fields)
+        form = form(instance=self.element)
 
         return render(request, 'update.html', {
             'title': title,
@@ -834,22 +1037,76 @@ class CustomUpdateView(View):
         })
 
 
-def room_detail(request, id=None):
+class ProductCustomCreateView(CustomCreateView):
     """
     """
 
-    print("room detail view")
+    model = None
+    urls = None
 
+    def post(self, request, *args, **kwargs):
+        """
+        POST method
+        """
 
-    title = 'Sala'
+        print("custom create function post")
 
-    element = get_object_or_404(storage_models.Room, id=id)
+        # Obtenemos las Urls
+        #self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
 
-    return render(request, 'room.html', {
-        'title': title,
-        'element': element
-    })
+        # Obtenemos los attributos del elemento
+        fields = []
+        model_fields = self.model._meta.get_fields()
+        # Obtenemos los atributos que no queremos mostrar
+        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'create')
+        [fields.append(field) for field in model_fields if field.name not in exclude_fields]
 
+        #form = storage_forms.get_custom_form(self.model, fields)
+        form = storage_forms.ProductCustomCreateForm(request.POST)
+        #form = form(request.POST)
+
+        if form.is_valid():
+            #data = form.cleaned_data
+            form.save()
+
+            return redirect(storage_utilities.getRedirectUrl(self.model._meta.verbose_name_plural))
+
+        else:
+            print("formulario invalido")
+            print(form.errors)
+
+        return render(request, 'create.html', {
+            'form': form,
+            #'urls': self.urls,
+        })
+
+    def get(self, request, *args, **kwargs):
+        """
+        GET method
+        """
+
+        print("custom create function")
+
+        # Obtenemos los attributos del elemento
+        fields = []
+        model_fields = self.model._meta.get_fields()
+        # Obtenemos los atributos que no queremos mostrar
+        exclude_fields = storage_utilities.getExcludeFields(self.model._meta.verbose_name_plural, 'create')
+        [fields.append(field) for field in model_fields if field.name not in exclude_fields]
+
+        #form = storage_forms.get_custom_form(self.model, fields)
+        form = storage_forms.ProductCustomCreateForm()
+
+        title = "Crear "
+        title += self.model._meta.verbose_name
+
+        self.urls = storage_utilities.getUrls(self.model._meta.verbose_name_plural)
+
+        return render(request, 'create.html', {
+            'title': title,
+            'form': form,
+            'urls': self.urls,
+        })
 
 def getValue(param):
     return str(param)

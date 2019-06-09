@@ -26,6 +26,8 @@ urlpatterns = [
     path('password_reset/', app_views.password_reset, name='password_reset'),
     path('password_reset_form/<uidb64>/<token>/', app_views.password_reset_form, name='password_reset_form'),
 
+    path('fichar/<int:id>/', app_views.fichar, name='fichar'),
+
     # API Urls
     path('download_data/', app_views.download_data, name='download_data'),
 
@@ -117,7 +119,7 @@ urlpatterns = [
         name='product_list'),
 
     path('product/crear',
-        app_views.CustomCreateView.as_view(
+        app_views.ProductCustomCreateView.as_view(
             model=app_models.Product),
         name='product_create'),
 
@@ -162,13 +164,63 @@ urlpatterns = [
             model=app_models.MaintenanceTask),
         name='maintenance_delete'),
 
+    # Budget Urls
+    path('budget/',
+        app_views.CustomListView.as_view(
+            model=app_models.Budget),
+        name='budget_list'),
+
+    path('budget/crear',
+        app_views.CustomCreateView.as_view(
+            model=app_models.Budget),
+        name='budget_create'),
+
+    path('budget/<int:id>/editar',
+        app_views.CustomUpdateView.as_view(
+            model=app_models.Budget),
+        name='budget_update'),
+
+    path('budget/<int:id>/ver',
+        app_views.CustomDetailView.as_view(
+            model=app_models.Budget),
+        name='budget_view'),
+
+    path('budget/<int:id>/borrar',
+        app_views.CustomDeleteView.as_view(
+            model=app_models.Budget),
+        name='budget_delete'),
+
+    # Notifications Urls
+    path('notification/',
+        app_views.CustomListView.as_view(
+            model=app_models.Notification),
+        name='notification_list'),
+
+    path('notification/crear',
+        app_views.CustomCreateView.as_view(
+            model=app_models.Notification),
+        name='notification_create'),
+
+    path('notification/<int:id>/editar',
+        app_views.CustomUpdateView.as_view(
+            model=app_models.Notification),
+        name='notification_update'),
+
+    path('notification/<int:id>/ver',
+        app_views.CustomDetailView.as_view(
+            model=app_models.Notification),
+        name='notification_view'),
+
+    path('notification/<int:id>/borrar',
+        app_views.CustomDeleteView.as_view(
+            model=app_models.Notification),
+        name='notification_delete'),
+
     # Permissions Urls
     path('permissions/',
         app_views.CustomListView.as_view(
             model=app_models.CustomPermission),
         name='permission_list'),
-
-    # path('permissions/crear', app_views.CustomCreateView.as_view(model=app_models.CustomPermission), name='permission_create'),
 
     path('permissions/crear/', app_views.permission_create, name='permission_create'),
     path('permissions/crear/cargar_elementos/', app_views.permission_load, name='ajax_permissions_load'),
@@ -189,7 +241,8 @@ urlpatterns = [
         name='permission_delete'),
 
     # Statistics Urls
-    path('statistics/', app_views.general_statistics, name='general_statistics'),
+    path('general_statistics/', app_views.general_statistics, name='general_statistics'),
+    path('map_statistics/', app_views.map_statistics, name='map_statistics'),
     #path('room_statistics/<int:id>/', app_views.room_statistics, name='room_statistics'),
 
 ]

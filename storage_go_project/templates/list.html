@@ -21,9 +21,12 @@
               </div>
               <div class="col-4">
                 {% get_url urls 'create' as element_create %}
-                <button type="button" onclick="return openCustomModal('{% url element_create %}')" class="btn btn-outline-primary float-right">
+                {% check_permission user.username type="Modelo" action="Crear" model=model as aux %}
+                {% if aux or user.is_superuser %}
+                <button type="button" onclick="return openCustomModal('{% url element_create %}')" class="btn btn-outline-primary float-right btn-sm">
                   <span class="fas fa-plus"></span>
                 </button>
+                {% endif %}
               </div>
             </div>
           </div>
@@ -54,7 +57,21 @@
                 </thead>
                 <tbody>
                   {% for element in elements %}
-                    <tr>
+
+                    {% if element.status == 'Completada' or element.status == 'Aprobado' %}
+                      <tr class="table-success">
+                    {% elif element.status == 'Pendiente' %}
+                      <tr class="table-warning">
+                    {% elif element.status == 'Cancelado'%}
+                      <tr class="table-danger">
+                    {% else %}
+                      {% if forloop.counter|divisibleby:"2" %}
+                        <tr class="table-default">
+                      {% else %}
+                        <tr class="table-active">
+                      {% endif %}
+                    {% endif %}
+
                       {% for value in element.fields_values %}
                         <td class="align-middle text-center">{{ value }}</td>
                       {% endfor %}
@@ -64,27 +81,39 @@
                             <span class="fas fa-bars"></span>
                           </a>
                           <div class="dropdown-menu" arial-labelledby="option_button">
+
                             {% get_url urls 'view' as element_view %}
+                            {% check_permission user.username type="Objeto" action="Ver" model=model object=element.id as aux %}
+                            {% if aux or user.is_superuser %}
                             <a class="dropdown-item">
                               <button type="button" onclick="return openCustomModal('{% url element_view element.id %}')" class="btn btn-outline-primary float-right btn-sm">
                                 Ver
                                 <span class="fas fa-eye"></span>
                               </button>
                             </a>
+                            {% endif %}
+
                             {% get_url urls 'update' as element_update %}
+                            {% check_permission user.username type="Objeto" action="Modificar" model=model object=element.id as aux %}
+                            {% if aux or user.is_superuser %}
                             <a class="dropdown-item">
                               <button type="button" onclick="return openCustomModal('{% url element_update element.id %}')" class="btn btn-outline-primary float-right btn-sm">
                                 Editar
                                 <span class="fas fa-pencil-alt"></span>
                               </button>
                             </a>
+                            {% endif %}
+
                             {% get_url urls 'delete' as element_delete %}
+                            {% check_permission user.username type="Objeto" action="Borrar" model=model object=element.id as aux %}
+                            {% if aux or user.is_superuser %}
                             <a class="dropdown-item">
                               <button type="button" onclick="return openCustomModal('{% url element_delete element.id %}')" class="btn btn-outline-primary float-right btn-sm">
                                 Borrar
                                 <span class="fas fa-trash"></span>
                               </button>
                             </a>
+                            {% endif %}
                           </div>
                         </div>
                       </td>

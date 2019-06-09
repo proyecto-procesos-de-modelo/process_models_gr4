@@ -20,7 +20,7 @@
         <!-- If Room Detail -->
         {% if model.meta.verbose_name == 'Sala' %}
           <p><b>Mapa de Sala:</b></p>
-          <div class="container-fluid" style="height: 200px;">
+          <div class="container-fluid">
             {% setValue 0 as aux %}
             {% for item in room_map %}
               {% if item.y == 0 %}
@@ -31,10 +31,12 @@
               {% endif %}
               {% if item.status == 'Disponible' %}
                 <div class="col sala empty" onclick="return openCustomModal('{% url 'panel:container_view' item.id %}')">
+                  <p> </p>
               {% else %}
                 <div class="col sala full" onclick="return openCustomModal('{% url 'panel:container_view' item.id %}')">
+                  {% get_container item.id as container %}
+                  <p>{{ container.id }}</p>
               {% endif %}
-              <p>{{ item.id }}</p>
               </div>
               {% setValue item.x as aux %}
             {% endfor %}
@@ -47,11 +49,26 @@
         <!-- If Room Detail -->
         {% if model.meta.verbose_name == 'Sala' %}
           <div class="modal-footer">
-            {% if element.status == 'Cerrada' %}
-              <button type="submit" class="btn btn-outline-primary">Abrir</button>
-            {% else %}
-              <button type="submit" class="btn btn-outline-danger">Cerrar</button>
+
+            {% get_url urls 'update' as element_update %}
+            {% check_permission user.username type="Objeto" action="Modificar" model="Mapa de Sala" object=element.id as aux %}
+            {% if aux or user.is_superuser %}
+            <button type="submit" onclick="return openCustomModal('{% url element_update element.id %}')" class="btn btn-outline-primary">Editar</button>
             {% endif %}
+
+          </div>
+        {% endif %}
+
+        <!-- If Notification Detail -->
+        {% if model.meta.verbose_name == 'Notificacion' %}
+          <div class="modal-footer">
+
+            {% check_permission user.username type="Objeto" action="Borrar" model="Notificacion" object=element.id as aux %}
+            {% if aux or user.is_superuser %}
+              {% get_url urls 'delete' as element_delete %}
+              <button type="submit" onclick="return openCustomModal('{% url element_delete element.id %}')" class="btn btn-outline-danger">Borrar</button>
+            {% endif %}
+
           </div>
         {% endif %}
 

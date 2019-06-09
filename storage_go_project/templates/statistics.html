@@ -1,19 +1,76 @@
 
-{% load static %}
+{% extends "base.html" %}
 
-<div class="modal-dialog modal-lg">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h4 class="modal-title">{{ title }}</h4>
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <p>Estadísticas</p>
-    </div>
-    <div class="modal-footer">
-      <button type="submit" class="btn btn-outline-primary">Crear</button>
+{% load static %}
+{% load storage_tags %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+  <!-- Element List -->
+  <div class="row custom_row">
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col">
+                <h5>{{ title }}</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body custom-card-body">
+
+          <!--<canvas id="bar-chart" width="800" height="450"></canvas>-->
+          <!-- <canvas id="pie-chart" width="800" height="450"></canvas> -->
+          <!-- <canvas id="doughnut-chart" width="800" height="450"></canvas> -->
+
+          {{ statistics|json_script:"statistics" }}
+
+          <div class="row">
+            <div class="col-8">
+              <canvas id="statistics_1" class="bar-chart"></canvas>
+            </div>
+            <div class="col-4">
+              <canvas id="statistics_2" class="doughnut-chart"></canvas>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-8">
+              <canvas id="statistics_6" class="bar-chart"></canvas>
+            </div>
+            <div class="col-4">
+              <canvas id="statistics_4" class="doughnut-chart"></canvas>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <canvas id="statistics_7" class="pie-chart"></canvas>
+            </div>
+            <div class="col-4">
+              <canvas id="statistics_8" class="pie-chart"></canvas>
+            </div>
+            <div class="col-4">
+              <canvas id="statistics_10" class="pie-chart"></canvas>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <canvas id="statistics_11" class="bar-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+{% endblock content %}
+
+
+
+
+
+<!-- -->

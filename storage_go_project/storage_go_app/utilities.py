@@ -72,7 +72,51 @@ def getExcludeFields(model, action):
         elif action == 'view':
             fields = storage_config.permission_view_exclude_fields
 
+    elif model == 'Presupuestos':
+        if action == 'list':
+            fields = storage_config.budget_list_exclude_fields
+        elif action == 'create':
+            fields = storage_config.budget_create_exclude_fields
+        elif action == 'update':
+            fields = storage_config.budget_update_exclude_fields
+        elif action == 'view':
+            fields = storage_config.budget_view_exclude_fields
+
+    elif model == 'Notificaciones':
+        if action == 'list':
+            fields = storage_config.notification_list_exclude_fields
+        elif action == 'create':
+            fields = storage_config.notification_create_exclude_fields
+        elif action == 'update':
+            fields = storage_config.notification_update_exclude_fields
+        elif action == 'view':
+            fields = storage_config.notification_view_exclude_fields
+
     return fields
+
+
+def getProfileRedirectUrl(group):
+    """
+    """
+
+    url = None
+
+    if group.id == 6:
+        url = storage_config.ceo_profile_redirect
+
+    elif group.id == 7:
+        url = storage_config.manager_profile_redirect
+
+    elif group.id == 8:
+        url = storage_config.maintenance_profile_redirect
+
+    elif group.id == 9:
+        url = storage_config.worker_profile_redirect
+
+    elif group.id == 10:
+        url = storage_config.admin_profile_redirect
+
+    return url
 
 
 def getRedirectUrl(name):
@@ -93,11 +137,17 @@ def getRedirectUrl(name):
     elif name == 'Tareas de Movimiento':
         url = storage_config.task_redirect
 
-    elif name == 'Tarea de Mantenimiento':
+    elif name == 'Tareas de Mantenimiento':
         url = storage_config.maintenance_redirect
 
     elif name == 'Permisos Personalizados':
         url = storage_config.permission_redirect
+
+    elif name == 'Presupuestos':
+        url = storage_config.budget_redirect
+
+    elif name == 'Notificaciones':
+        url = storage_config.notification_redirect
 
     return url
 
@@ -123,6 +173,12 @@ def getUrls(name):
 
     elif name == 'Permisos Personalizados':
         urls = storage_config.permission_urls
+
+    elif name == 'Presupuestos':
+        urls = storage_config.budget_urls
+
+    elif name == 'Notificaciones':
+        urls = storage_config.notification_urls
 
     return urls
 
